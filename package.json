@@ -1,0 +1,13 @@
+{
+  "name": "CerfBaleineDemo",
+  "uuid": "24e50498-96ed-405b-81af-178ee231681c",
+  "creator": {
+    "version": "3.8.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.13"
+  },
+  "dependencies": {
+    "crypto-es": "^2.1.0"
+  }
+}
