@@ -14,12 +14,13 @@ import { StorageSecurityCrypto } from "./common/storage/StorageSecurityCrypto";
 import { TimerMgr } from "./common/timer/TimerMgr";
 import { GameManager } from "./game/GameManager";
 import { LayerManager } from "./gui/layer/LayerManager";
+import { LanguageManager } from "../libs/gui/language/Language";
 
 const { property } = _decorator;
 
 let isInited = false;
 /** 框架版本号 */
-export var version: string = "2.0.0.20241118";
+let version: string = "1.0.0";
 
 /** 框架显示层根节点 */
 export class Root extends Component {
@@ -77,11 +78,10 @@ export class Root extends Component {
         audio: this.persist.addComponent(AudioMgr),
         gui: new LayerManager(this.gui),
         game: new GameManager(this.game),
+        i18n: new LanguageManager(),
 
         /** ----------可选模块---------- */
 
-        /** 多语言模块 */
-        // static language: LanguageManager = new LanguageManager();
         /** HTTP */
         // static http: HttpRequest = new HttpRequest();           // 使用流程文档可参考、简化与服务器对接、使用新版API体验，可进入下面地址获取新版本，替换network目录中的内容(https://store.cocos.com/app/detail/5877)
         /** WebSocket */

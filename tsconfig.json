@@ -1,17 +1,21 @@
-{
-  /* Base configuration. Do not edit this field. */
-  "extends": "./temp/tsconfig.cocos.json",
-
-  /* Add your custom configuration here. */
-  "compilerOptions": {
-    "types": ["node"],
-    "strict": false,
-    "allowImportingTsExtensions": true,
-    "lib": ["ES2015", "DOM"],
-    "paths": {
-      "cc": ["./temp/declarations/cc"]
-    },
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
+﻿{
+    /* Base configuration. Do not edit this field. */
+    "extends": "./temp/tsconfig.cocos.json",
+  
+    /* Add your custom configuration here. */
+    "compilerOptions": {
+      "types": ["node"],
+      "strict": false,
+      "allowImportingTsExtensions": true,
+      "lib": ["ES2015", "DOM"],
+      "baseUrl": "./",
+      "paths": {
+        "cc": ["./temp/declarations/cc"],
+        "@/*": ["assets/*"]
+      },
+      "resolveJsonModule": true,
+      "esModuleInterop": true,
+      "moduleResolution": "node"
+    }
   }
-}
+  

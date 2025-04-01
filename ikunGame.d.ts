@@ -19,6 +19,8 @@
   export const gui: LayerManager;
   /** 三维游戏世界管理 */
   export const game: GameManager;
+  /** 多语言管理 */
+  export const i18n: LanguageManager;
 }
 
 declare enum LogType {
@@ -569,8 +571,8 @@ declare class MessageMgr {
 type AudioSource = import("cc").AudioSource;
 type AudioClip = import("cc").AudioClip;
 type Component = import("cc").Component;
-type cNode = import("cc").Node;
-type cCamera = import("cc").Camera;
+type ccNode = import("cc").Node;
+type ccCamera = import("cc").Camera;
 
 interface AudioMusic extends AudioSource {
   /** 背景音乐开关 */
@@ -900,14 +902,14 @@ interface UICallbacks {
    * @param node   当前界面节点
    * @param params 外部传递参数
    */
-  onAdded?: (node:cNode, params: any) => void;
+  onAdded?: (node: ccNode, params: any) => void;
 
   /**
    * 窗口节点 destroy 之后回调
    * @param node   当前界面节点
    * @param params 外部传递参数
    */
-  onRemoved?: (node:cNode | null, params: any) => void;
+  onRemoved?: (node: ccNode | null, params: any) => void;
 
   /**
    * 如果指定onBeforeRemoved，则next必须调用，否则节点不会被正常删除。
@@ -916,7 +918,7 @@ interface UICallbacks {
    * @param node   当前界面节点
    * @param next   回调方法
    */
-  onBeforeRemove?: (node:cNode, next: Function) => void;
+  onBeforeRemove?: (node: ccNode, next: Function) => void;
 
   /** 网络异常时，窗口加载失败回调 */
   onLoadFailure?: () => void;
@@ -933,7 +935,7 @@ declare class ViewParams {
   /** 是否在使用状态 */
   valid: boolean;
   /** 界面根节点 */
-  node:cNode;
+  node: ccNode;
 }
 
 /** 屏幕适配类型 */
@@ -1002,13 +1004,13 @@ interface UIConfig {
 
 interface LayerManager {
   /** 界面根节点 */
-  root: cNode;
+  root: ccNode;
   /** 界面摄像机 */
-  camera: cCamera;
+  camera: ccCamera;
   /** 游戏界面特效层 */
-  game: cNode;
+  game: ccNode;
   /** 新手引导层 */
-  guide: cNode;
+  guide: ccNode;
 
   /** 窗口宽高比例 */
   windowAspectRatio: number;
@@ -1055,10 +1057,10 @@ interface LayerManager {
    * @param callbacks     回调对象
    * @example
   var uic: UICallbacks = {
-      onAdded: (node:cNode, params: any) => {
+      onAdded: (node:ccNode, params: any) => {
           var comp = node.getComponent(LoadingViewComp) as ecs.Comp;
       }
-      onRemoved:(node:cNode | null, params: any) => {
+      onRemoved:(node:ccNode | null, params: any) => {
                   
       }
   };
@@ -1073,7 +1075,7 @@ interface LayerManager {
    * @example
    * var node = await ikun.gui.openAsync(UIID.Loading);
    */
-  openAsync(uiId: number, uiArgs: any): Promise<cNode | null>;
+  openAsync(uiId: number, uiArgs: any): Promise<ccNode | null>;
 
   /**
    * 场景替换
@@ -1089,7 +1091,7 @@ interface LayerManager {
    * @param openUiId    新打开场景编号
    * @param uiArgs      新打开场景参数
    */
-  replaceAsync(removeUiId: number, openUiId: number, uiArgs: any): Promise<cNode | null>;
+  replaceAsync(removeUiId: number, openUiId: number, uiArgs: any): Promise<ccNode | null>;
 
   /**
    * 缓存中是否存在指定标识的窗口
@@ -1105,7 +1107,7 @@ interface LayerManager {
    * @example
    * ikun.gui.has(UIID.Loading);
    */
-  get(uiId: number): cNode;
+  get(uiId: number): ccNode;
 
   /**
    * 移除指定标识的窗口
@@ -1123,7 +1125,7 @@ interface LayerManager {
    * @example
    * ikun.gui.removeByNode(cc.Node);
    */
-  removeByNode(node: cNode, isDestroy?: boolean): void;
+  removeByNode(node: ccNode, isDestroy?: boolean): void;
 
   /**
    * 清除所有窗口
@@ -1136,9 +1138,82 @@ interface LayerManager {
 
 interface GameManager {
   /** 界面根节点 */
-  root: cNode;
+  root: ccNode;
   /** 设置游戏动画速度 */
   setTimeScale(scale: number): void;
   /** 获取游戏动画速度 */
   getTimeScale(): number;
+}
+
+interface LanguagePack {
+  /**
+   * 刷新语言文字
+   * @param lang
+   */
+  updateLanguage(lang: string): void;
+
+  /**
+   * 下载对应语言包资源
+   * @param lang 语言标识
+   * @param callback 下载完成回调
+   */
+  loadLanguageAssets(lang: string, callback: Function): Promise<void>;
+
+  /**
+   * 释放某个语言的语言包资源包括json
+   * @param lang
+   */
+  releaseLanguageAssets(lang: string): void;
+}
+
+interface LanguageManager {
+  /** 支持的多种语言列表 */
+  get languages(): string[];
+  set languages(languages: Array<string>);
+
+  /** 设置的当前语言列表中没有配置时，使用默认语言 */
+  set default(lang: string);
+
+  /** 获取当前语种 */
+  get current(): string;
+
+  /** 语言包 */
+  get pack(): LanguagePack;
+  /**
+   * 是否存在指定语言
+   * @param lang  语言名
+   * @returns 存在返回true,则否false
+   */
+  isExist(lang: string): boolean;
+
+  /** 获取下一个语种 */
+  getNextLang(): string;
+
+  /**
+   * 改变语种，会自动下载对应的语种
+   * @param language 语言名
+   * @param callback 多语言资源数据加载完成回调
+   */
+  setLanguage(language: string, callback?: (success: boolean) => void): void;
+
+  /**
+   * 根据data获取对应语种的字符
+   * @param labId
+   * @param arr
+   */
+  getLangByID(labId: string): string;
+
+  /**
+   * 下载语言包素材资源
+   * 包括语言json配置和语言纹理包
+   * @param lang
+   * @param callback
+   */
+  loadLanguageAssets(lang: string, callback: Function): void;
+
+  /**
+   * 释放不需要的语言包资源
+   * @param lang
+   */
+  releaseLanguageAssets(lang: string): void;
 }

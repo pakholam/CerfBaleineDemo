@@ -1,4 +1,5 @@
-import { _decorator, Component, Node, Root } from 'cc';
+import { _decorator, Component, Node } from 'cc';
+import { Root } from './core/Root';
 const { ccclass, property } = _decorator;
 
 @ccclass('Main')
