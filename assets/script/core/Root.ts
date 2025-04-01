@@ -57,18 +57,15 @@ export class Root extends Component {
     this.persist = new Node("IkunFrameworkPersistNode");
     director.addPersistRootNode(this.persist);
 
-    // 资源管理模块
-    ikun.res = resLoader;
-
     const config_name = "config";
-    const config = await ikun.res.loadAsync(config_name, JsonAsset);
+    const config = await resLoader.loadAsync(config_name, JsonAsset);
     if (config) {
       window.ikun = {
-        log: Logger,
+        log: Logger.instance,
         config: {
-          btc: new BuildTimeConstants(),
-          game: new GameConfig(config),
-          query: new GameQueryConfig(),
+          btc: null,
+          game: null,
+          query: null
         },
         storage: storage,
         res: resLoader,
@@ -76,12 +73,12 @@ export class Root extends Component {
         random: RandomMgr.instance,
         timer: this.persist.addComponent(TimerMgr)!,
         audio: this.persist.addComponent(AudioMgr),
-        gui: new LayerManager(this.gui),
-        game: new GameManager(this.game),
+        gui: null,
+        game: null,
         i18n: new LanguageManager(),
-
+        
         /** ----------可选模块---------- */
-
+        
         /** HTTP */
         // static http: HttpRequest = new HttpRequest();           // 使用流程文档可参考、简化与服务器对接、使用新版API体验，可进入下面地址获取新版本，替换network目录中的内容(https://store.cocos.com/app/detail/5877)
         /** WebSocket */
@@ -92,8 +89,11 @@ export class Root extends Component {
         // static mvvm = VM;
         /** 对象池 */
         // static pool = EffectSingleCase.instance;
-      };
-
+        };
+        
+      ikun.config.btc = new BuildTimeConstants(),
+      ikun.config.game = new GameConfig(config),
+      ikun.config.query = new GameQueryConfig(),
       // 设置默认资源包
       ikun.res.defaultBundleName = ikun.config.game.bundleDefault;
       ikun.res.init(ikun.config.game.data.bundle);
@@ -103,6 +103,11 @@ export class Root extends Component {
 
       ikun.audio.load();
 
+      ikun.game = new GameManager(this.game),
+      ikun.gui = new LayerManager(),
+      // 游戏界面管理
+      ikun.gui.mobileSafeArea = ikun.config.game.mobileSafeArea;
+      ikun.gui.initLayer(this.gui, config.json.gui);
       // // 网络模块
       // ikun.http.server = ikun.config.game.httpServer;                                      // Http 服务器地址
       // ikun.http.timeout = ikun.config.game.httpTimeout;                                    // Http 请求超时时间

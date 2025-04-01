@@ -84,7 +84,7 @@ export class EffectSingleCase {
       await resLoader.loadAsync(bundleName, path, Prefab);
 
       for (let i = 0; i < count; i++) {
-        let node = ViewUtil.createPrefabNode(path);
+        let node = ViewUtil.createPrefabNode(path, bundleName);
         //@ts-ignore
         node.res_path = path;
         np.put(node);
@@ -193,7 +193,7 @@ export class EffectSingleCase {
   clear(path?: string) {
     if (path) {
       var np = this.effects.get(path)!;
-      np.clear();
+      if(np) np.clear();
     } else {
       this.effects.forEach((np) => {
         np.clear();

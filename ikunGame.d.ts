@@ -16,11 +16,11 @@
   /** 游戏时间管理 */
   export const timer: TimerMgr;
   /** 二维界面管理 */
-  export const gui: LayerManager;
+  export let gui: LayerManager;
   /** 三维游戏世界管理 */
-  export const game: GameManager;
+  export let game: GameManager;
   /** 多语言管理 */
-  export const i18n: LanguageManager;
+  export let i18n: LanguageManager;
 }
 
 declare enum LogType {
@@ -38,9 +38,11 @@ declare enum LogType {
   Trace = 32,
 }
 
-interface Logger {
-  init(): void;
+interface ILoggerConsole {
+  trace(content: string, color: string): void;
+}
 
+interface Logger {
   /** 
     * 设置显示的日志类型，默认值为不显示任何类型日志
     * @example
@@ -166,6 +168,8 @@ interface GameConfig {
   get bundlePackages(): string;
   /** 加载界面资源超时提示 */
   get loadingTimeoutGui(): number;
+  /** 是否开启移动设备安全区域适配 */
+  get mobileSafeArea(): boolean
   /** 游戏配置数据 */
   get data(): any;
 }
@@ -825,6 +829,7 @@ interface TimerMgr extends Component {
      * 在指定对象上注册一个倒计时的回调管理器
      * @param object        注册定时器的对象
      * @param field         时间字段
+     * @param target        触发事件的对象
      * @param onSecond      每秒事件
      * @param onComplete    倒计时完成事件
      * @returns 
@@ -834,7 +839,7 @@ interface TimerMgr extends Component {
         
         start() {
             // 在指定对象上注册一个倒计时的回调管理器
-            this.timeId = ikun.timer.register(this, "countDown", this.onSecond, this.onComplete);
+            this.timeId = oops.timer.register(this, "countDown", this.onSecond, this.onComplete);
         }
         
         private onSecond() {
@@ -846,26 +851,26 @@ interface TimerMgr extends Component {
         }
     }
      */
-  register(object: any, field: string, onSecond: Function, onComplete: Function): string;
+    register(object: any, field: string, target: object, onSecond: Function, onComplete: Function): string;
 
-  /** 
- * 在指定对象上注销一个倒计时的回调管理器 
- * @param id         时间对象唯一表示
- * @example
-export class Test extends Component {
-    private timeId!: string;
-
-    start() {
-        this.timeId = ikun.timer.register(this, "countDown", this.onSecond, this.onComplete);
-    }
-
-    onDestroy() {
-        // 在指定对象上注销一个倒计时的回调管理器
-        ikun.timer.unRegister(this.timeId);
-    }
-}
- */
-  unRegister(id: string): void;
+    /** 
+       * 在指定对象上注销一个倒计时的回调管理器 
+       * @param id         时间对象唯一表示
+       * @example
+      export class Test extends Component {
+          private timeId!: string;
+  
+          start() {
+              this.timeId = oops.timer.register(this, "countDown", this.onSecond, this.onComplete);
+          }
+  
+          onDestroy() {
+              // 在指定对象上注销一个倒计时的回调管理器
+              oops.timer.unRegister(this.timeId);
+          }
+      }
+       */
+    unRegister(id: string): void;
 
   /**
    * 服务器时间与本地时间同步
@@ -948,7 +953,6 @@ declare enum ScreenAdapterType {
   Portrait,
 }
 
-/** 界面层类型 */
 declare enum LayerType {
   /** 二维游戏层 */
   Game = "LayerGame",
@@ -1000,6 +1004,10 @@ interface UIConfig {
   vacancy?: boolean;
   /** 是否打开窗口后显示背景遮罩（默认关闭） */
   mask?: boolean;
+  /** 是否启动真机安全区域显示 */
+  safeArea?: boolean;
+  /** 界面弹出时的节点排序索引 */
+  siblingIndex?: number;
 }
 
 interface LayerManager {
@@ -1016,7 +1024,15 @@ interface LayerManager {
   windowAspectRatio: number;
   /** 设计宽高比例 */
   designAspectRatio: number;
-
+  /** 是否开启移动设备安全区域适配 */
+  mobileSafeArea: boolean;
+  /**
+   * 初始化界面层
+   * @param root 界面根节点
+   * @param config 
+   * @returns 
+   */
+  initLayer(root: ccNode, config: any): void;
   /**
    * 初始化所有UI的配置对象
    * @param configs 配置对象

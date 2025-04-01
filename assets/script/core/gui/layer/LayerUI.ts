@@ -1,12 +1,13 @@
-import { instantiate, Node, Prefab, Widget } from "cc";
+import { instantiate, Node, Prefab, Widget, SafeArea } from "cc";
 import { DelegateComponent } from "./DelegateComponent";
+import { Collection } from "../../../libs/collection/Collection";
 
 /** 界面层对象 */
 export class LayerUI extends Node {
   /** 全局窗口打开失败 */
   onOpenFailure: Function = null!;
   /** 显示界面节点集合 */
-  protected ui_nodes = new Map<string, ViewParams>();
+  protected ui_nodes = new Collection<string, ViewParams>();
   /** 被移除的界面缓存数据 */
   protected ui_cache = new Map<string, ViewParams>();
 
@@ -68,11 +69,13 @@ export class LayerUI extends Node {
       bundle = bundle || ikun.res.defaultBundleName;
       const res = await ikun.res.loadAsync(bundle, vp.config.prefab, Prefab);
       if (res) {
-        const ui = instantiate(res);
-        vp.node = ui;
+        vp.node = instantiate(res);
+        // 是否启动真机安全区域显示
+        if (vp.config.safeArea) vp.node.addComponent(SafeArea);
 
         // 窗口事件委托
-        const dc = ui.addComponent(DelegateComponent);
+
+        const dc = vp.node.addComponent(DelegateComponent);
         dc.vp = vp;
         dc.onCloseWindow = this.onCloseWindow.bind(this);
 
@@ -134,7 +137,7 @@ export class LayerUI extends Node {
    * @param isDestroy    移除后是否释放
    */
   remove(prefabPath: string, isDestroy?: boolean): void {
-    let release = undefined;
+    let release: any = undefined;
     if (isDestroy !== undefined) release = isDestroy;
 
     // 界面移出舞台

@@ -366,14 +366,14 @@ export class GameComponent extends Component {
    */
   async playEffect(url: string, bundleName?: string) {
     if (bundleName == null) bundleName = ikun.res.defaultBundleName;
-    const id = await ikun.audio.playEffect(url, bundleName, () => {
-      const rps = this.resPaths.get(ResType.Audio);
-      if (rps) {
-        const key = this.getResKey(bundleName, url, id);
-        rps.delete(key);
-      }
+    await ikun.audio.playEffect(url, bundleName, () => {
+        const rps = this.resPaths.get(ResType.Audio);
+        if (rps) {
+            const key = this.getResKey(bundleName, url);
+            rps.delete(key);
+        }
     });
-    this.addPathToRecord(ResType.Audio, bundleName, url, id);
+    this.addPathToRecord(ResType.Audio, bundleName, url);
   }
   //#endregion
 

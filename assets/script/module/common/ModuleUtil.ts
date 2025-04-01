@@ -22,7 +22,8 @@ export class ModuleUtil {
     const uic: UICallbacks = {
       onAdded: (node: Node, params: any) => {
         const comp = node.getComponent(ctor) as ecs.Comp;
-        ent.add(comp);
+        //@ts-ignore
+        if (!ent.has(ctor)) ent.add(comp);
       },
     };
     ikun.gui.open(uiId, uiArgs, uic);

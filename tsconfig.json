@@ -10,8 +10,7 @@
       "lib": ["ES2015", "DOM"],
       "baseUrl": "./",
       "paths": {
-        "cc": ["./temp/declarations/cc"],
-        "@/*": ["assets/*"]
+        "cc": ["./temp/declarations/cc"]
       },
       "resolveJsonModule": true,
       "esModuleInterop": true,

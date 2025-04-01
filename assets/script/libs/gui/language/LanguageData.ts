@@ -1,5 +1,13 @@
 import { TTFFont } from "cc";
 
+/** 框架支持的语言数据类型 */
+export enum LanguageDataType {
+  /** Json格式配置 */
+  Json = "Json",
+  /** Excel生成的Json配置 */
+  Excel = "Excel",
+}
+
 export class LanguageData {
   /** JSON资源目录 */
   static path_json: string = "language/json";
@@ -10,10 +18,8 @@ export class LanguageData {
 
   /** 当前语言 */
   static current: string = "";
-  /** 语言JSON配置数据 */
-  static json: any = {};
-  /** 语言EXCEL中的配置数据 */
-  static excel: any = null!;
+  /** 语言数据 */
+  static language: Map<string, any> = new Map();
   /** TTF字体 */
   static font: TTFFont = null!;
 
@@ -25,20 +31,14 @@ export class LanguageData {
    * 1、先获取language/json中的配置数据，如果没有者获取config/game/Language配置表中的多语言数据
    *
    * 2、config/game/Language配置表可选使用，不用时不创建同名配置表即可
+   *
+   * 3、config/game/Language配置表使用ikun-plugin-excel-to-json插件生成，点击项目根目录下载update-ikun-plugin-framework.bat或update-ikun-plugin-framework.sh脚本下载插件
    */
   public static getLangByID(labId: string): string {
-    const text = this.json[labId];
-    if (text) {
-      return text;
+    for (const [key, value] of this.language) {
+      const content = value[labId];
+      if (content) return content;
     }
-
-    if (this.excel) {
-      const record = this.excel[labId];
-      if (record) {
-        return record[this.current];
-      }
-    }
-
     return labId;
   }
 }

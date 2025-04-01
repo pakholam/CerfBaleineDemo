@@ -60,6 +60,8 @@ export class StorageMgr {
       }
     } else if (typeof value === "number") {
       value = value + "";
+    } else if (typeof value === 'boolean') {
+      value = String(value);
     }
 
     if (this.encrypted) {

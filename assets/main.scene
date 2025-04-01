@@ -592,8 +592,12 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "game": null,
-    "gui": null,
+    "game": {
+      "__id__": 3
+    },
+    "gui": {
+      "__id__": 12
+    },
     "_id": "b9tR3++BFDOpw319SF3ly/"
   },
   {

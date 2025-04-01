@@ -2,7 +2,7 @@ import { director, error, JsonAsset, TTFFont } from "cc";
 import { resLoader } from "../../../core/common/loader/ResLoader";
 import { Logger } from "../../../core/common/log/Logger";
 import { JsonUtil } from "../../../core/utils/JsonUtil";
-import { LanguageData, LanguageType } from "./LanguageData";
+import { LanguageData, LanguageDataType, LanguageType } from "./LanguageData";
 
 export class LanguagePack {
   /**
@@ -38,9 +38,10 @@ export class LanguagePack {
   /** 多语言Excel配置表数据 */
   private loadTable(lang: string) {
     return new Promise(async (resolve, reject) => {
-      LanguageData.excel = await JsonUtil.loadAsync("Language");
-      if (LanguageData.excel) {
-        Logger.logConfig("config/game/Language", "下载语言包 table 资源");
+      let json = await JsonUtil.loadAsync("Language");
+      if (json) {
+        LanguageData.language.set(LanguageDataType.Excel, json);
+        Logger.instance.logConfig("config/game/Language", "下载语言包 table 资源");
       }
       resolve(null);
     });
@@ -56,7 +57,7 @@ export class LanguagePack {
           resolve(null);
           return;
         }
-        Logger.logConfig(path, "下载语言包 textures 资源");
+        Logger.instance.logConfig(path, "下载语言包 textures 资源");
         resolve(null);
       });
     });
@@ -68,15 +69,15 @@ export class LanguagePack {
       const path = `${LanguageData.path_json}/${lang}`;
       const jsonAsset = await resLoader.loadAsync(path, JsonAsset);
       if (jsonAsset) {
-        LanguageData.json = jsonAsset.json;
-        Logger.logConfig(path, "下载语言包 json 资源");
+        LanguageData.language.set(LanguageDataType.Json, jsonAsset.json);
+        Logger.instance.logConfig(path, "下载语言包 json 资源");
       } else {
         resolve(null);
         return;
       }
 
       resLoader.load(path, TTFFont, (err: Error | null, font: TTFFont) => {
-        if (err == null) Logger.logConfig(path, "下载语言包 ttf 资源");
+        if (err == null) Logger.instance.logConfig(path, "下载语言包 ttf 资源");
         LanguageData.font = font;
         resolve(null);
       });
@@ -93,7 +94,7 @@ export class LanguagePack {
           resolve(null);
           return;
         }
-        Logger.logConfig(path, "下载语言包 spine 资源");
+        Logger.instance.logConfig(path, "下载语言包 spine 资源");
         resolve(null);
       });
     });

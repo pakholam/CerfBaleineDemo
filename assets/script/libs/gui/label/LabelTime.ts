@@ -1,6 +1,7 @@
 import { Label, _decorator } from "cc";
 import { EventMessage } from "../../../core/common/event/EventMessage";
 import { TimeUtil } from "../../../core/utils/TimeUtils";
+import { EDITOR } from "cc/env";
 
 const { ccclass, property, menu } = _decorator;
 
@@ -134,15 +135,19 @@ export default class LabelTime extends Label {
     }
 
     start() {
-        ikun.message.on(EventMessage.GAME_SHOW, this.onGameShow, this);
-        ikun.message.on(EventMessage.GAME_HIDE, this.onGameHide, this);
+        if (!EDITOR) {
+            ikun.message.on(EventMessage.GAME_SHOW, this.onGameShow, this);
+            ikun.message.on(EventMessage.GAME_HIDE, this.onGameHide, this);
+        }
         this.timing_start();
         this.format();
     }
 
     onDestroy() {
-        ikun.message.off(EventMessage.GAME_SHOW, this.onGameShow, this);
-        ikun.message.off(EventMessage.GAME_HIDE, this.onGameHide, this);
+        if (!EDITOR) {
+            ikun.message.off(EventMessage.GAME_SHOW, this.onGameShow, this);
+            ikun.message.off(EventMessage.GAME_HIDE, this.onGameHide, this);
+        }
     }
 
     private onGameShow() {
