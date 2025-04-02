@@ -1,7 +1,7 @@
 import { instantiate, Node, Prefab, Widget, SafeArea } from "cc";
 import { DelegateComponent } from "./DelegateComponent";
 import { Collection } from "../../../libs/collection/Collection";
-
+import { ViewParams } from "./Defines";
 /** 界面层对象 */
 export class LayerUI extends Node {
   /** 全局窗口打开失败 */

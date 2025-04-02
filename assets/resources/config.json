@@ -45,7 +45,7 @@
         }
     ],
     "language": {
-        "default": "zh",
+        "default": "en",
         "type": [
             "zh",
             "en"
@@ -59,7 +59,7 @@
     "bundle": {
         "enable": false,
         "server": "http://localhost",
-        "default": "resources",
+        "default": "bundle",
         "packages": {
             "bundle": ""
         }

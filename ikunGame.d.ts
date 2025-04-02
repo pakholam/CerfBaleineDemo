@@ -21,6 +21,8 @@
   export let game: GameManager;
   /** 多语言管理 */
   export let i18n: LanguageManager;
+  /** ecs */
+  export let ecs: ECSRootSystem;
 }
 
 declare enum LogType {
@@ -214,10 +216,10 @@ interface StorageMgr {
    * @param defaultValue 获取的默认值
    * @returns
    */
-  get(key: string, defaultValue: any): string;
+  get(key: string, defaultValue?: any): string;
 
   /** 获取指定关键字的数值 */
-  getNumber(key: string, defaultValue: number): number;
+  getNumber(key: string, defaultValue?: number): number;
 
   /** 获取指定关键字的布尔值 */
   getBoolean(key: string): boolean;
@@ -930,7 +932,7 @@ interface UICallbacks {
 }
 
 /** 本类型仅供gui模块内部使用，请勿在功能逻辑中使用 */
-declare class ViewParams {
+interface ViewParams {
   /** 界面配置 */
   config: UIConfig;
   /** 传递给打开界面的参数 */
@@ -1091,7 +1093,7 @@ interface LayerManager {
    * @example
    * var node = await ikun.gui.openAsync(UIID.Loading);
    */
-  openAsync(uiId: number, uiArgs: any): Promise<ccNode | null>;
+  openAsync(uiId: number, uiArgs?: any): Promise<ccNode | null>;
 
   /**
    * 场景替换
@@ -1232,4 +1234,13 @@ interface LanguageManager {
    * @param lang
    */
   releaseLanguageAssets(lang: string): void;
+}
+
+interface ECSRootSystem {
+  add(system: any): any;
+  init(): void;
+
+  execute(dt: number): void;
+
+  clear(): void;
 }

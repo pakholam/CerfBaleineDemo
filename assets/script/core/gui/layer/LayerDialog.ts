@@ -1,4 +1,5 @@
 import { LayerPopUp } from "./LayerPopup";
+import { ViewParams } from "./Defines";
 
 /** 模式弹窗数据 */
 type DialogParam = {

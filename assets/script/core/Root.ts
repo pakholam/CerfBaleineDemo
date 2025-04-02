@@ -15,6 +15,7 @@ import { TimerMgr } from "./common/timer/TimerMgr";
 import { GameManager } from "./game/GameManager";
 import { LayerManager } from "./gui/layer/LayerManager";
 import { LanguageManager } from "../libs/gui/language/Language";
+import { ecs } from "../libs/ecs/ECS";
 
 const { property } = _decorator;
 
@@ -47,67 +48,77 @@ export class Root extends Component {
 
       console.log(`Ikun Framework v${version}`);
       this.enabled = false;
+      this.initModule();
       this.iniStart();
       this.loadConfig().then();
     }
   }
 
-  private async loadConfig() {
+  private initModule(): void{
     // 创建持久根节点
     this.persist = new Node("IkunFrameworkPersistNode");
     director.addPersistRootNode(this.persist);
-
-    const config_name = "config";
-    const config = await resLoader.loadAsync(config_name, JsonAsset);
-    if (config) {
-      window.ikun = {
-        log: Logger.instance,
-        config: {
-          btc: null,
-          game: null,
-          query: null
-        },
-        storage: storage,
-        res: resLoader,
-        message: message,
-        random: RandomMgr.instance,
-        timer: this.persist.addComponent(TimerMgr)!,
-        audio: this.persist.addComponent(AudioMgr),
-        gui: null,
+    window.ikun = {
+      log: Logger.instance,
+      config: {
+        btc: null,
         game: null,
-        i18n: new LanguageManager(),
-        
-        /** ----------可选模块---------- */
-        
-        /** HTTP */
-        // static http: HttpRequest = new HttpRequest();           // 使用流程文档可参考、简化与服务器对接、使用新版API体验，可进入下面地址获取新版本，替换network目录中的内容(https://store.cocos.com/app/detail/5877)
-        /** WebSocket */
-        // static tcp: NetManager = new NetManager();              // 使用流程文档可参考、简化与服务器对接、使用新版API体验，可进入下面地址获取新版本，替换network目录中的内容(https://store.cocos.com/app/detail/5877)
-        /** ECS */
-        // static ecs: ECSRootSystem = new ecs.RootSystem();
-        /** MVVM */
-        // static mvvm = VM;
-        /** 对象池 */
-        // static pool = EffectSingleCase.instance;
-        };
-        
+        query: null,
+      },
+      storage: storage,
+      res: resLoader,
+      message: message,
+      random: RandomMgr.instance,
+      timer: this.persist.addComponent(TimerMgr)!,
+      audio: this.persist.addComponent(AudioMgr),
+      gui: new LayerManager(),
+      game: new GameManager(this.game),
+      i18n: new LanguageManager(),
+      ecs: new ecs.RootSystem(),
+      
+      /** ----------可选模块---------- */
+      /** HTTP */
+      // static http: HttpRequest = new HttpRequest();           // 使用流程文档可参考、简化与服务器对接、使用新版API体验，可进入下面地址获取新版本，替换network目录中的内容(https://store.cocos.com/app/detail/5877)
+      /** WebSocket */
+      // static tcp: NetManager = new NetManager();              // 使用流程文档可参考、简化与服务器对接、使用新版API体验，可进入下面地址获取新版本，替换network目录中的内容(https://store.cocos.com/app/detail/5877)
+      /** MVVM */
+      // static mvvm = VM;
+      /** 对象池 */
+      // static pool = EffectSingleCase.instance;
+    };
+  }
+
+  private async loadConfig() {
+    const config_name = "config";
+    const config = await ikun.res.loadAsync(config_name, JsonAsset);
+    if (config) {
+      // 设置配置内容
       ikun.config.btc = new BuildTimeConstants(),
-      ikun.config.game = new GameConfig(config),
-      ikun.config.query = new GameQueryConfig(),
+      ikun.config.game = new GameConfig(config);
+      ikun.config.query = new GameQueryConfig();
+
       // 设置默认资源包
       ikun.res.defaultBundleName = ikun.config.game.bundleDefault;
       ikun.res.init(ikun.config.game.data.bundle);
 
-      // ikun.storage.init(new StorageSecuritySimple);
+      // 初始化存储
       ikun.storage.init(new StorageSecurityCrypto());
-
+      // ikun.storage.init(new StorageSecuritySimple);
+      
+      // 设置默认语言
+      let lang = ikun.storage.get("language");
+      if(lang == null || lang == ""){
+        lang = ikun.config.game.languageDefault;
+      }
+      ikun.i18n.default = lang;
+                  
+      // 加载音效
       ikun.audio.load();
 
-      ikun.game = new GameManager(this.game),
-      ikun.gui = new LayerManager(),
-      // 游戏界面管理
+      // 初始化ui
       ikun.gui.mobileSafeArea = ikun.config.game.mobileSafeArea;
       ikun.gui.initLayer(this.gui, config.json.gui);
+      
       // // 网络模块
       // ikun.http.server = ikun.config.game.httpServer;                                      // Http 服务器地址
       // ikun.http.timeout = ikun.config.game.httpTimeout;                                    // Http 请求超时时间
@@ -125,7 +136,7 @@ export class Root extends Component {
   }
 
   update(dt: number) {
-    // ikun.ecs.execute(dt);
+    ikun.ecs.execute(dt);
   }
 
   /** 初始化开始 */
@@ -143,7 +154,7 @@ export class Root extends Component {
   private init() {
     this.initGui();
     this.initEcsSystem();
-    // ikun.ecs.init();
+    ikun.ecs.init();
 
     // 游戏显示事件
     game.on(Game.EVENT_SHOW, this.onShow, this);
